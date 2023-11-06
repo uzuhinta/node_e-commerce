@@ -9,3 +9,4 @@ dist/
 **/*.eslintignore
 **/*.gitignore
 **/*.prettierignore
+**/*.env.example
