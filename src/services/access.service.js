@@ -3,13 +3,14 @@ const bcrypt = require('bcrypt');
 const SHOP_ROLE = require('#src/constants/shopRole.constant.js');
 const shopModel = require('#src/models/shop.model.js');
 const KeyTokenService = require('./keyToken.service');
-const { createTokenPair, createAsymmetricKeyPair } = require('#src/auth/jwt.js');
+const { createTokenPair, createAsymmetricKeyPair, decodeToken } = require('#src/auth/jwt.js');
 const { getInfoData } = require('#src/utils/index.js');
 const {
   ConflictError,
   InternalServerError,
   BadRequestError,
   UnauthorizedError,
+  ForbiddenError,
 } = require('#src/core/error.response.js');
 const ShopService = require('./shop.service');
 
@@ -37,6 +38,42 @@ class AccessService {
   };
 
   static logout = async ({ keyToken }) => KeyTokenService.deleteKeyById(keyToken._id);
+
+  static handleRefreshToken = async ({ refreshToken }) => {
+    const storedUsedKeyToken = await KeyTokenService.findByUsedRefreshToken(refreshToken);
+    if (storedUsedKeyToken) {
+      const { shopId } = decodeToken(refreshToken, storedUsedKeyToken.publicKey);
+
+      await KeyTokenService.deleteKeyByShopId(shopId);
+
+      throw new ForbiddenError('Please login again!');
+    }
+
+    const storedToken = await KeyTokenService.findByRefreshToken(refreshToken);
+    if (!storedToken) throw new UnauthorizedError('Shop does not register');
+
+    const { shopId, email } = decodeToken(refreshToken, storedToken.publicKey);
+    const storedShop = await ShopService.findById(shopId);
+    if (!storedShop) throw new UnauthorizedError('Shop does not register');
+
+    const { privateKey, publicKey } = createAsymmetricKeyPair();
+    const token = createTokenPair({ shopId, email }, privateKey);
+
+    await storedToken.updateOne({
+      $set: {
+        refreshToken: token.refreshToken,
+        publicKey: publicKey.toString(),
+      },
+      $addToSet: {
+        refreshTokensUsed: refreshToken,
+      },
+    });
+
+    return {
+      shop: getInfoData(['_id', 'name', 'email'], storedShop),
+      token,
+    };
+  };
 
   static signUp = async ({ name, email, password }) => {
     // Check email is exist or not

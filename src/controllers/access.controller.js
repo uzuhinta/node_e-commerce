@@ -15,6 +15,13 @@ class AccessController {
     }).send(res);
   };
 
+  handleRefreshToken = async (req, res) => {
+    new OkResponse({
+      message: 'Get token success',
+      metadata: await AccessService.handleRefreshToken(req.body),
+    }).send(res);
+  };
+
   signup = async (req, res) => {
     new CreatedResponse({
       message: 'Shop created successfully!',

@@ -7,6 +7,7 @@ const { authorization } = require('#src/auth/checkAuth.js');
 
 router.post('/sign-up', asyncHandler(AccessController.signup));
 router.post('/login', asyncHandler(AccessController.login));
+router.post('/handle-refresh-token', asyncHandler(AccessController.handleRefreshToken));
 
 router.use(authorization);
 

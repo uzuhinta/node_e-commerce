@@ -31,7 +31,13 @@ const createAsymmetricKeyPair = () => {
   return { privateKey, publicKey };
 };
 
+const decodeToken = (token, secret) => {
+  const { shopId, email } = JWT.decode(token, secret);
+  return { shopId, email };
+};
+
 module.exports = {
   createTokenPair,
   createAsymmetricKeyPair,
+  decodeToken,
 };
