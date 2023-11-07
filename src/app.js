@@ -23,6 +23,22 @@ if (checkEnable(config.mongo_database.enable)) {
 // Init router
 app.use('/', require('./routes'));
 
+// fallback route
+app.use((req, res, next) => {
+  const error = new Error('Not found!');
+  error.status = 404;
+  return next(error);
+});
+
 // Handle error
+// eslint-disable-next-line no-unused-vars
+app.use((error, req, res, next) => {
+  const statusCode = error.status || 500;
+  return res.status(statusCode).json({
+    code: statusCode,
+    status: 'error',
+    message: error.message || 'Internal error!',
+  });
+});
 
 module.exports = app;

@@ -1,15 +1,25 @@
+const { CreatedResponse, OkResponse } = require('#src/core/success.response.js');
 const AccessService = require('#src/services/access.service.js');
 
 class AccessController {
+  login = async (req, res) => {
+    new OkResponse({
+      metadata: await AccessService.login(req.body),
+    }).send(res);
+  };
+
+  logout = async (req, res) => {
+    new OkResponse({
+      message: 'Logout successfully',
+      metadata: await AccessService.logout(req),
+    }).send(res);
+  };
+
   signup = async (req, res) => {
-    try {
-      res.json(await AccessService.signUp(req.body));
-    } catch (error) {
-      console.log(error);
-      return res.json({
-        fda: 'fadsf',
-      });
-    }
+    new CreatedResponse({
+      message: 'Shop created successfully!',
+      metadata: await AccessService.signUp(req.body),
+    }).send(res);
   };
 }
 

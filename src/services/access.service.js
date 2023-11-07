@@ -1,79 +1,68 @@
 const bcrypt = require('bcrypt');
-const crypto = require('crypto');
 
-const ShopRole = require('#src/constants/shopRole.constant.js');
+const SHOP_ROLE = require('#src/constants/shopRole.constant.js');
 const shopModel = require('#src/models/shop.model.js');
 const KeyTokenService = require('./keyToken.service');
-const createTokenPair = require('#src/utils/jwt.js');
+const { createTokenPair, createAsymmetricKeyPair } = require('#src/auth/jwt.js');
 const { getInfoData } = require('#src/utils/index.js');
+const {
+  ConflictError,
+  InternalServerError,
+  BadRequestError,
+  UnauthorizedError,
+} = require('#src/core/error.response.js');
+const ShopService = require('./shop.service');
 
 class AccessService {
+  static login = async ({ email, password }) => {
+    const storedShop = await ShopService.findByEmail(email);
+    if (!storedShop) throw new BadRequestError('Shop does not register');
+
+    const match = bcrypt.compare(password, storedShop.password);
+    if (!match) throw new UnauthorizedError();
+
+    const { _id: shopId } = storedShop;
+    const { privateKey, publicKey } = createAsymmetricKeyPair();
+    const token = createTokenPair({ shopId, email }, privateKey);
+    await KeyTokenService.createKeyToken({
+      shopId,
+      publicKey,
+      refreshToken: token.refreshToken,
+    });
+
+    return {
+      shop: getInfoData(['_id', 'email', 'name'], storedShop),
+      token,
+    };
+  };
+
+  static logout = async ({ keyToken }) => KeyTokenService.deleteKeyById(keyToken._id);
+
   static signUp = async ({ name, email, password }) => {
-    try {
-      // Check email is exist or not
-      const storedStop = await shopModel.findOne({ email }).lean();
+    // Check email is exist or not
+    const storedStop = await shopModel.findOne({ email }).lean();
+    if (storedStop) throw new ConflictError('Shop already registered!');
 
-      if (storedStop) {
-        return {
-          code: 409,
-          message: 'Shop already exist',
-        };
-      }
+    const salt = await bcrypt.genSalt(10);
+    const hashPassword = await bcrypt.hash(password, salt);
 
-      const salt = await bcrypt.genSalt(10);
-      const hashPassword = await bcrypt.hash(password, salt);
+    const newShop = await shopModel.create({
+      name,
+      email,
+      password: hashPassword,
+      role: [SHOP_ROLE.SHOP],
+    });
+    if (!newShop) throw new InternalServerError();
 
-      const newShop = await shopModel.create({
-        name,
-        email,
-        password: hashPassword,
-        role: [ShopRole.SHOP],
-      });
+    const { privateKey, publicKey } = createAsymmetricKeyPair();
+    const token = createTokenPair({ shopId: newShop._id, email }, privateKey);
+    const publicKeyString = await KeyTokenService.createKeyToken({ shopId: newShop._id, publicKey });
+    if (!publicKeyString) throw new InternalServerError();
 
-      if (newShop) {
-        const { privateKey, publicKey } = crypto.generateKeyPairSync('rsa', {
-          modulusLength: 4096,
-          publicKeyEncoding: {
-            type: 'pkcs1',
-            format: 'pem',
-          },
-          privateKeyEncoding: {
-            type: 'pkcs1',
-            format: 'pem',
-          },
-        });
-
-        const publicKeyString = await KeyTokenService.createKeyToken({ shopId: newShop._id, publicKey });
-
-        if (!publicKeyString) {
-          return {
-            code: 500,
-            message: 'Server error',
-          };
-        }
-
-        const token = createTokenPair({ shopId: newShop._id, email }, privateKey);
-
-        return {
-          code: 201,
-          metadata: {
-            shop: getInfoData(['_id', 'name', 'email'], newShop),
-            token,
-          },
-        };
-      }
-
-      return {
-        code: 201,
-        message: 'Shop created ', // Redirect to login page
-      };
-    } catch (error) {
-      return {
-        code: 404,
-        message: error.message,
-        status: 'error',
-      };
-    }
+    return {
+      shop: getInfoData(['_id', 'name', 'email'], newShop),
+      token,
+    };
   };
 }
 

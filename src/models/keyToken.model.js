@@ -15,6 +15,10 @@ const keyTokenSchema = new Schema(
       require: true,
     },
     refreshToken: {
+      type: String,
+      require: true,
+    },
+    refreshTokensUsed: {
       type: SchemaTypes.Array,
       default: [],
     },

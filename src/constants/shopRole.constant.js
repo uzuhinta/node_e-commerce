@@ -1,8 +1,9 @@
-const ShopRole = {
+const SHOP_ROLE = {
   SHOP: 'SHOP',
-  READ: '0001',
-  WRITE: '0002',
-  UPDATE: '0003',
+  WRITER: '0001',
+  READ: '0002',
+  DELETE: '0003',
+  ADMIN: '0000',
 };
 
-module.exports = ShopRole;
+module.exports = SHOP_ROLE;
