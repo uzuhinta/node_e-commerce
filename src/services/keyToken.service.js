@@ -21,7 +21,7 @@ class KeyTokenService {
     return token ? token.publicKey : null;
   };
 
-  static findByShopId = async (shopId) => keyTokenModel.findOne({ shop: shopId }).lean();
+  static findByShopId = async (shopId) => keyTokenModel.findOne({ shop: shopId });
 
   static deleteKeyById = async (id) => keyTokenModel.deleteOne(id);
 

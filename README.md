@@ -24,5 +24,7 @@
 7. Logout API (10)
   a.Check authentication and role middleware
 
-7. Refresh token API (10)
+8. Refresh token API (11)
+
+9. Create new product API (12-14, 15)
 ```

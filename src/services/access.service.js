@@ -3,7 +3,7 @@ const bcrypt = require('bcrypt');
 const SHOP_ROLE = require('#src/constants/shopRole.constant.js');
 const shopModel = require('#src/models/shop.model.js');
 const KeyTokenService = require('./keyToken.service');
-const { createTokenPair, createAsymmetricKeyPair, decodeToken } = require('#src/auth/jwt.js');
+const { createTokenPair, createAsymmetricKeyPair } = require('#src/auth/jwt.js');
 const { getInfoData } = require('#src/utils/index.js');
 const {
   ConflictError,
@@ -39,27 +39,23 @@ class AccessService {
 
   static logout = async ({ keyToken }) => KeyTokenService.deleteKeyById(keyToken._id);
 
-  static handleRefreshToken = async ({ refreshToken }) => {
-    const storedUsedKeyToken = await KeyTokenService.findByUsedRefreshToken(refreshToken);
-    if (storedUsedKeyToken) {
-      const { shopId } = decodeToken(refreshToken, storedUsedKeyToken.publicKey);
+  static handleRefreshToken = async ({ storedKeyToken, refreshToken, shop }) => {
+    console.log('storedKeyToken', storedKeyToken);
+    const { shopId, email } = shop;
 
+    if (storedKeyToken.refreshTokensUsed.includes(refreshToken)) {
       await KeyTokenService.deleteKeyByShopId(shopId);
 
       throw new ForbiddenError('Please login again!');
     }
 
-    const storedToken = await KeyTokenService.findByRefreshToken(refreshToken);
-    if (!storedToken) throw new UnauthorizedError('Shop does not register');
-
-    const { shopId, email } = decodeToken(refreshToken, storedToken.publicKey);
     const storedShop = await ShopService.findById(shopId);
     if (!storedShop) throw new UnauthorizedError('Shop does not register');
 
     const { privateKey, publicKey } = createAsymmetricKeyPair();
     const token = createTokenPair({ shopId, email }, privateKey);
 
-    await storedToken.updateOne({
+    await storedKeyToken.updateOne({
       $set: {
         refreshToken: token.refreshToken,
         publicKey: publicKey.toString(),
@@ -70,7 +66,10 @@ class AccessService {
     });
 
     return {
-      shop: getInfoData(['_id', 'name', 'email'], storedShop),
+      shop: {
+        _id: shopId,
+        email,
+      },
       token,
     };
   };
