@@ -40,7 +40,6 @@ class AccessService {
   static logout = async ({ keyToken }) => KeyTokenService.deleteKeyById(keyToken._id);
 
   static handleRefreshToken = async ({ storedKeyToken, refreshToken, shop }) => {
-    console.log('storedKeyToken', storedKeyToken);
     const { shopId, email } = shop;
 
     if (storedKeyToken.refreshTokensUsed.includes(refreshToken)) {

@@ -27,4 +27,12 @@
 8. Refresh token API (11)
 
 9. Create new product API (12-14, 15)
+
+10. Some product API (16-18)
+  a. Publish/Draft product
+  b. Search product
+  c. Get all/one product
+  d. Get publish/draft product
+  e. Update (PATCH) product
+
 ```

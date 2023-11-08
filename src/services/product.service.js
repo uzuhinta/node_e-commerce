@@ -1,5 +1,16 @@
+const PRODUCT_STATUS = require('#src/constants/productStatus.constant.js');
 const { BadRequestError } = require('#src/core/error.response.js');
 const { productModel, clothingModel, electronicModel } = require('#src/models/product.model.js');
+const {
+  findProductForShop,
+  publishProductByShop,
+  draftProductByShop,
+  searchProduct,
+  findAllProduct,
+  getOneProduct,
+  updateProductById,
+} = require('#src/models/repositories/product.repository.js');
+const { updateNestedObjectParser, removeUndefinedObjectParser } = require('#src/utils/index.js');
 
 class ProductFactory {
   static productRegistry = [];
@@ -12,6 +23,39 @@ class ProductFactory {
     const productClass = this.productRegistry[type];
     if (!productClass) throw new BadRequestError(`Product type: ${type} is not support`);
     return new productClass(payload).createProduct();
+  };
+
+  static findAllDraftsForShop = async ({ product_shop, limit = 50, page = 1 }) => {
+    const query = { product_shop, status: PRODUCT_STATUS.DRAFT };
+    return findProductForShop({ query, limit, page });
+  };
+
+  static findAllPublishForShop = async ({ product_shop, limit = 50, page = 1 }) => {
+    const query = { product_shop, status: PRODUCT_STATUS.PUBLISH };
+    return findProductForShop({ query, limit, page });
+  };
+
+  static publishProductByShop = async ({ product_shop, product_id }) =>
+    publishProductByShop({ product_shop, product_id });
+
+  static draftProductByShop = async ({ product_shop, product_id }) => draftProductByShop({ product_shop, product_id });
+
+  static searchProduct = async ({ keySearch }) => searchProduct(keySearch);
+
+  static findAllProduct = async ({
+    filter = { status: PRODUCT_STATUS.PUBLISH },
+    limit = 50,
+    page = 1,
+    sortBy = 'ctime',
+  }) =>
+    findAllProduct({ filter, limit, page, sortBy, select: ['_id', 'product_name', 'product_price', 'product_thumb'] });
+
+  static getOneProduct = async ({ product_id }) => getOneProduct({ product_id, unselect: ['__v'] });
+
+  static updateProduct = async ({ type, product_id, payload }) => {
+    const productClass = this.productRegistry[type];
+    if (!productClass) throw new BadRequestError(`Product type: ${type} is not support`);
+    return new productClass(payload).updateProduct(product_id);
   };
 }
 
@@ -37,15 +81,16 @@ class Product {
   }
 
   async createProduct(productId) {
-    console.log('Product', productId);
     return await productModel.create({ ...this, _id: productId });
+  }
+
+  async updateProduct(productId, payload) {
+    return await updateProductById({ productId, payload: updateNestedObjectParser(payload), model: productModel });
   }
 }
 
 class ClothingProduct extends Product {
   async createProduct() {
-    console.log('ClothingProduct', this);
-
     const newClothing = await clothingModel.create({ ...this.product_attribute, product_shop: this.product_shop });
     if (!newClothing) throw new BadRequestError('Can not create clothing');
 
@@ -54,12 +99,25 @@ class ClothingProduct extends Product {
 
     return newProduct;
   }
+
+  async updateProduct(productId) {
+    const objectParam = this;
+
+    if (objectParam.product_attribute) {
+      await updateProductById({
+        productId,
+        payload: removeUndefinedObjectParser({ ...objectParam.product_attribute }),
+        model: clothingModel,
+      });
+    }
+
+    const updatedProduct = super.updateProduct(productId, objectParam);
+    return updatedProduct;
+  }
 }
 
 class ElectronicProduct extends Product {
   async createProduct() {
-    console.log('ElectronicProduct', this);
-
     const newElectronic = await electronicModel.create({ ...this.product_attribute, product_shop: this.product_shop });
     if (!newElectronic) throw new BadRequestError('Can not create electronic');
 
@@ -67,6 +125,21 @@ class ElectronicProduct extends Product {
     if (!newProduct) throw new BadRequestError('Can not create product');
 
     return newProduct;
+  }
+
+  async updateProduct(productId) {
+    const objectParam = this;
+
+    if (objectParam.product_attribute) {
+      await updateProductById({
+        productId,
+        payload: removeUndefinedObjectParser({ ...objectParam.product_attribute }),
+        model: electronicModel,
+      });
+    }
+
+    const updatedProduct = super.updateProduct(productId, objectParam);
+    return updatedProduct;
   }
 }
 
