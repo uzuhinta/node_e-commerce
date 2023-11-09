@@ -13,8 +13,8 @@ router.use(authentication);
 
 router.post('/', asyncHandler(productController.createProduct));
 router.patch('/:product_id', asyncHandler(productController.updateProduct));
-router.get('/draft', asyncHandler(productController.getAllDraftsForShop));
-router.get('/publish', asyncHandler(productController.getAllPublishForShop));
+router.get('/draft/all', asyncHandler(productController.getAllDraftsForShop));
+router.get('/publish/all', asyncHandler(productController.getAllPublishForShop));
 router.post('/publish/:product_id', asyncHandler(productController.publishProductByShop));
 router.post('/draft/:product_id', asyncHandler(productController.draftProductByShop));
 

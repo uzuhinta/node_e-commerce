@@ -35,4 +35,12 @@
   d. Get publish/draft product
   e. Update (PATCH) product
 
+11. Discount API (20-22)
+  a. Create (shop role)
+  b. Get all (shop role)
+  c. Update (shop role)
+  d. Delete (shop role)
+  e. Calculate discount amount
+  f. Get list product can apply discount
+
 ```

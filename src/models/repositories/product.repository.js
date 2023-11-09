@@ -58,7 +58,13 @@ const findAllProduct = async ({ filter, limit, page, sortBy, select }) => {
   const skip = (page - 1) * limit;
   const sort = sortBy === 'ctime' ? { _id: -1 } : { _id: 1 };
 
-  const results = await productModel.find(filter).sort(sort).skip(skip).limit(limit).select(getSelectData(select));
+  const results = await productModel
+    .find(filter)
+    .sort(sort)
+    .skip(skip)
+    .limit(limit)
+    .select(getSelectData(select))
+    .lean();
   return results;
 };
 
@@ -70,6 +76,7 @@ const getOneProduct = async ({ product_id, unselect }) =>
 
 const updateProductById = async ({ productId, payload, model, isNew = true }) =>
   model.findByIdAndUpdate(productId, payload, { new: isNew });
+
 module.exports = {
   findProductForShop,
   publishProductByShop,

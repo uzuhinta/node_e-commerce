@@ -19,6 +19,12 @@ class UnauthorizedError extends BaseError {
   }
 }
 
+class NotFoundError extends BaseError {
+  constructor(message = ReasonPhrases.NOT_FOUND, statusCode = StatusCodes.NOT_FOUND) {
+    super(message, statusCode);
+  }
+}
+
 class ForbiddenError extends BaseError {
   constructor(message = ReasonPhrases.FORBIDDEN, statusCode = StatusCodes.FORBIDDEN) {
     super(message, statusCode);
@@ -40,6 +46,7 @@ class InternalServerError extends BaseError {
 module.exports = {
   BadRequestError,
   UnauthorizedError,
+  NotFoundError,
   ForbiddenError,
   ConflictError,
   InternalServerError,
