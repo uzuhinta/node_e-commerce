@@ -43,5 +43,7 @@
   e. Calculate discount amount
   f. Get list product can apply discount
   g. ()
+12. Log to Discord (32-33)
+13. Comment product (38-39)
 
 ```
