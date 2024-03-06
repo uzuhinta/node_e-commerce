@@ -1,5 +1,5 @@
 const { OkResponse } = require('#src/core/success.response.js');
-const InventoryService = require('#src/services/inventory.service');
+const InventoryService = require('#src/services/inventory.service.js');
 
 class InventoryController {
   addStock = async (req, res) => {

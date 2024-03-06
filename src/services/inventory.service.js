@@ -1,4 +1,4 @@
-const { BadRequestError } = require('#src/core/error.response');
+const { BadRequestError } = require('#src/core/error.response.js');
 const inventoryModel = require('#src/models/inventory.model.js');
 const { getOneProduct } = require('./product.service');
 
