@@ -5,6 +5,8 @@ const morgan = require('morgan');
 
 const config = require('./configs/config');
 const checkEnable = require('./helpers/check.enable');
+const { NotFoundError } = require('./core/error.response');
+const globalErrorHandler = require('./helpers/globalErrorHandler');
 
 const app = express();
 
@@ -25,21 +27,11 @@ app.use('/', require('./routes'));
 
 // fallback route
 app.use((req, res, next) => {
-  const error = new Error('Not found!');
-  error.status = 404;
-  return next(error);
+  next(new NotFoundError());
 });
 
 // Handle error
 // eslint-disable-next-line no-unused-vars
-app.use((error, req, res, next) => {
-  const statusCode = error.status || 500;
-  return res.status(statusCode).json({
-    code: statusCode,
-    status: 'error',
-    stack: error.stack,
-    message: error.message || 'Internal error!',
-  });
-});
+app.use(globalErrorHandler);
 
 module.exports = app;

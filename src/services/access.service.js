@@ -37,11 +37,17 @@ class AccessService {
     };
   };
 
-  static logout = async ({ keyToken }) => KeyTokenService.deleteKeyById(keyToken._id);
+  static logout = async ({ storedKeyToken }) => {
+    await KeyTokenService.deleteKeyById(storedKeyToken._id);
+    return { ok: 1 };
+  };
 
   static handleRefreshToken = async ({ storedKeyToken, refreshToken, shop }) => {
     const { shopId, email } = shop;
 
+    // Verify access token in the middleware
+    // req come to this function mean it pass authentication
+    // client report the old refresh token
     if (storedKeyToken.refreshTokensUsed.includes(refreshToken)) {
       await KeyTokenService.deleteKeyByShopId(shopId);
 

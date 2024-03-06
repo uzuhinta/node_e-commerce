@@ -13,14 +13,16 @@ class MongoDatabase {
   }
 
   connect() {
-    if (nodeEnv === 'dev') {
+    if (nodeEnv === 'development') {
       mongoose.set('debug', true);
       mongoose.set('debug', { color: true });
     }
 
     mongoose
       .connect(connectString)
-      .then(() => console.log(`MongoDB::: connected success ${nodeEnv === 'dev' && `host::${host} name ${name}`}`))
+      .then(() =>
+        console.log(`MongoDB::: connected success ${nodeEnv === 'development' && `host::${host} name ${name}`}`)
+      )
       .catch((err) => console.log('MongoDB::: connect error', err));
   }
 

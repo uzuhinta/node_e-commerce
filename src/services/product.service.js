@@ -1,6 +1,7 @@
 const PRODUCT_STATUS = require('#src/constants/productStatus.constant.js');
 const { BadRequestError } = require('#src/core/error.response.js');
 const { productModel, clothingModel, electronicModel } = require('#src/models/product.model.js');
+const { createInventory } = require('#src/models/repositories/inventory.repository.js');
 const {
   findProductForShop,
   publishProductByShop,
@@ -81,7 +82,15 @@ class Product {
   }
 
   async createProduct(productId) {
-    return await productModel.create({ ...this, _id: productId });
+    const newProduct = await productModel.create({ ...this, _id: productId });
+    if (newProduct) {
+      await createInventory({
+        productId: newProduct._id,
+        shopId: newProduct.product_shop,
+        stock: newProduct.product_quantity,
+      });
+    }
+    return newProduct;
   }
 
   async updateProduct(productId, payload) {
@@ -94,7 +103,7 @@ class ClothingProduct extends Product {
     const newClothing = await clothingModel.create({ ...this.product_attribute, product_shop: this.product_shop });
     if (!newClothing) throw new BadRequestError('Can not create clothing');
 
-    const newProduct = super.createProduct(newClothing._id);
+    const newProduct = await super.createProduct(newClothing._id);
     if (!newProduct) throw new BadRequestError('Can not create product');
 
     return newProduct;

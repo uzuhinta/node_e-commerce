@@ -57,7 +57,7 @@ const authentication = asyncHandler(async (req, res, next) => {
 
   try {
     const publicKeyObject = await crypto.createPublicKey(storedKeyToken.publicKey);
-    const payload = JWT.verify(accessToken, publicKeyObject);
+    const payload = JWT.verify(accessToken.replace(HEADER.BEARER, ''), publicKeyObject);
     if (payload.shopId !== shopId) return next(new ForbiddenError());
 
     req.shop = payload;

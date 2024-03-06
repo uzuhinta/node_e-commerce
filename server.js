@@ -10,6 +10,8 @@ const {
   server: { port },
 } = require('./src/configs/config');
 
+console.log(require('./src/configs/config'));
+
 // start server
 const app = require('./src/app');
 

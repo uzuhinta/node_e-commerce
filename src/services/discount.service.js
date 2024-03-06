@@ -22,7 +22,6 @@ class DiscountService {
     }
 
     const storedDiscount = await findOneDiscountByShopAndCode({ code, shop_id });
-    console.log('storedDiscount', storedDiscount);
     if (storedDiscount) throw new ConflictError(`Discount code: ${code} exist`);
 
     return createDiscount(payload);
