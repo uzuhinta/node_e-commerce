@@ -1,3 +1,4 @@
+const NOTIFICATION_TYPE = require('#src/constants/notiType.constant.js');
 const PRODUCT_STATUS = require('#src/constants/productStatus.constant.js');
 const { BadRequestError } = require('#src/core/error.response.js');
 const { productModel, clothingModel, electronicModel } = require('#src/models/product.model.js');
@@ -12,6 +13,7 @@ const {
   updateProductById,
 } = require('#src/models/repositories/product.repository.js');
 const { updateNestedObjectParser, removeUndefinedObjectParser } = require('#src/utils/index.js');
+const { pushNotificationToSystem } = require('./notification.service');
 
 class ProductFactory {
   static productRegistry = [];
@@ -89,6 +91,18 @@ class Product {
         shopId: newProduct.product_shop,
         stock: newProduct.product_quantity,
       });
+
+      pushNotificationToSystem({
+        type: NOTIFICATION_TYPE.SHOP_001,
+        receiveId: 1,
+        senderId: this.product_shop,
+        options: {
+          product_name: this.product_name,
+          shop_name: this.product_shop,
+        },
+      })
+        .then((rs) => console.log(rs))
+        .catch(console.error);
     }
     return newProduct;
   }

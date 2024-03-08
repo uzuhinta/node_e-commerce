@@ -29,7 +29,9 @@
     "#src/*": "./src/*"
   },
   "dependencies": {
+    "amqplib": "^0.10.3",
     "bcrypt": "^5.1.1",
+    "cloudinary": "^2.0.3",
     "compression": "^1.7.4",
     "discord.js": "^14.14.1",
     "dotenv": "^16.3.1",
@@ -39,6 +41,7 @@
     "lodash": "^4.17.21",
     "mongoose": "^8.0.0",
     "morgan": "^1.10.0",
+    "multer": "^1.4.5-lts.1",
     "redis": "^4.6.13",
     "slugify": "^1.6.6"
   },

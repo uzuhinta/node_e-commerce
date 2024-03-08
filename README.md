@@ -45,5 +45,7 @@
   g. ()
 12. Log to Discord (32-33)
 13. Comment product (38-39)
+14. Notification (40)
+15. Upload image (61-62)
 
 ```

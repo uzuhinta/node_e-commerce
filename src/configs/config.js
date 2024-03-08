@@ -16,6 +16,11 @@ const config = {
     token: process.env.DISCORD_TOKEN,
     chanelId: process.env.DISCORD_CHANEL_ID,
   },
+  cloudinary: {
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET,
+  },
 };
 
 module.exports = config;
