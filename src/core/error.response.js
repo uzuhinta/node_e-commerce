@@ -43,6 +43,12 @@ class InternalServerError extends BaseError {
   }
 }
 
+class RedisConnectionError extends BaseError {
+  constructor(message = ReasonPhrases.REDIS_CONNECTION_ERROR, status = StatusCodes.REDIS_CONNECTION_ERROR) {
+    super(message, status);
+  }
+}
+
 module.exports = {
   BadRequestError,
   UnauthorizedError,
@@ -50,4 +56,5 @@ module.exports = {
   ForbiddenError,
   ConflictError,
   InternalServerError,
+  RedisConnectionError,
 };

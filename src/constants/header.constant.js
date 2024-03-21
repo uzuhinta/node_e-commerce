@@ -4,6 +4,7 @@ const HEADER = {
   AUTHORIZATION: 'authorization',
   REFRESH_TOKEN: 'x-refresh-token-id',
   BEARER: 'Bearer ',
+  REQUEST_ID: 'x-request-id',
 };
 
 module.exports = HEADER;

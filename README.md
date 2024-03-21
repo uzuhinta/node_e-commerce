@@ -48,4 +48,5 @@
 14. Notification (40)
 15. Upload image (61-62)
 16. RBAC (76-79)
+17. Log ELK + connect redis (80 + 84)
 ```

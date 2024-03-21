@@ -14,15 +14,23 @@ console.log(require('./src/configs/config'));
 
 // start server
 const app = require('./src/app');
+const logger = require('#src/loggers/winston.log.js');
 
 const server = app.listen(port, () => {
   console.log(`Server is listening on port: ${port}`);
 });
 
-process.on('SIGINT', () => {
+process.on('unhandledRejection', (err) => {
+  logger.error('UNHANDLED REJECTION! 💥 Shutting down...');
+  logger.error(err.name, err.message);
   server.close(() => {
-    console.log('Exit Server');
+    process.exit(1);
   });
+});
 
-  // Notify send
+process.on('SIGTERM', () => {
+  logger.info('👋 SIGTERM RECEIVED. Shutting down gracefully');
+  server.close(() => {
+    logger.info('💥 Process terminated!');
+  });
 });

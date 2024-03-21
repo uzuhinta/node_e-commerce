@@ -1,6 +1,7 @@
 const {
   server: { nodeEnv },
 } = require('#src/configs/config.js');
+const logger = require('#src/loggers/winston.log.js');
 
 const sendErrorDev = (err, req, res) => {
   const statusCode = err.status || 500;
@@ -21,6 +22,7 @@ const sendErrorProd = (err, req, res) => {
 
 // eslint-disable-next-line no-unused-vars
 const globalErrorHandler = (err, req, res, next) => {
+  logger.error('Catch error', { req, res, err });
   if (nodeEnv === 'development') {
     return sendErrorDev(err, req, res);
   }

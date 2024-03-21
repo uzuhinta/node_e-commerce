@@ -341,4 +341,6 @@ module.exports = {
    * The 511 status code indicates that the client needs to authenticate to gain network auth.
    */
   NETWORK_AUTHENTICATION_REQUIRED: 511,
+
+  REDIS_CONNECTION_ERROR: -99,
 };
