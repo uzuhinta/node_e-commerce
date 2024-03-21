@@ -1,3 +1,11 @@
+## Reference
+
+AWS learning resource: https://github.com/uzuhinta/aws_learning-resource
+
+React learning resource + practice: https://github.com/uzuhinta/react_notebook
+
+Spring - Spring Boot practice: https://github.com/uzuhinta/spring_action
+
 ## Series
 
 ```txt
